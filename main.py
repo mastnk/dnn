@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description='')
 
 parser.add_argument('--clear', action='store_true', default=False)
 parser.add_argument('--nolog', action='store_true', default=False)
+parser.add_argument('--config', default=None)
 parser.add_argument('--verbose', action='store_true', default=False)
 
 parser.add_argument('--log_dir', default='checkpoint' )
@@ -47,6 +48,7 @@ cfg = vars( parser.parse_args() )
 # pop from cfg, they are not saved in yaml
 clear = cfg.pop('clear')
 nolog = cfg.pop('nolog')
+config = cfg.pop('config')
 verbose = cfg.pop('verbose')
 
 log_dir = cfg.pop('log_dir')
@@ -57,15 +59,25 @@ data_root = cfg.pop('data_root')
 slog = SimpleLogger( log_dir, nolog, log_name = log_name )
 print( 'log dir: ', slog.dir_name )
 
+cfg_file = {}
+if( config is not None ):
+    if( os.path.exists( config ) ):
+        with open( config, 'r') as yin:
+            cfg_file = yaml.load(yin, Loader=yaml.SafeLoader)
+        print( 'read {}'.format(config) )
+
+for k in sorted(cfg.keys()):
+    if( k in cfg_file.keys() ):
+        cfg[k] = cfg_file[k]
+        print( 'file:', k, cfg[k] )
+    else:
+        print( 'args:', k, cfg[k] )
+
 if( clear ):
     slog.clear_log()
     print( 'clear log' )
 
-if( slog.exists_yaml() ):
-    cfg = slog.read_yaml()
-    print( 'read cfg' )
-else:
-    slog.write_yaml( cfg )
+slog.write_yaml( cfg )
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 torch.backends.cudnn.benchmark = True
