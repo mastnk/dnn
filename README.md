@@ -2,4 +2,4 @@
 
 This is a template of CNN.
 
-[git branch memo](./docs/git_ex.pdf)
+[git branch memo](https://github.com/mastnk/dnn/blob/main/docs/dnn_ex.pdf)
